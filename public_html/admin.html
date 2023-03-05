@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="styles.css" rel="stylesheet">
+    <script src=
+    "https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js">
+        </script>
+    <title>ScanAuth</title>
+</head>
+<body>
+    <div class="flex overflow-auto scrollbar-hide">
+        <div id="settings" class="w-[50vw] h-[98vh] bg-white flex items-center text-5xl justify-center">
+            <div class="flex items-center justify-center drop-shadow-2xl p-5">
+                <div class="w-[450px] bg-white outline rounded-[50px] ">
+                    <p class="text-center font-semibold text-4xl pt-10">Settings</p>
+                    <div class="p-6 pb-0">
+                        <div onclick="toggleInfo('REG')" class="p-2 cursor-pointer flex items-center justify-center bg-white outline" data-uid="${item.id}">
+                            <ul class='sm:text-2xl p-2 text-3xl w-[370px] duration-150' type="text" value="${item.name} ${item.surname}">
+                                <p>Registrations</p>
+                            </ul>     
+                            <ul class='sm:text-2xl p-2 text-3xl w-[370px] duration-150' type="text" value="${item.name} ${item.surname}">
+                                <p id="regInfo" class="right-0 text-right font-semibold">-</p>
+                            </ul>            
+                        </div>
+                        <div class="p-2 bg-white outline" data-uid="${item.id}">
+                            <ul class='sm:text-2xl p-2 w-[100%] text-3xl duration-150 text-center' type="text" value="${item.name} ${item.surname}">
+                                <p>Download info</p>
+                            </ul>      
+                            <div class="flex items-center justify-center w-[100%]">
+                                <div class="p-2 flex-col items-center justify-center">
+                                    <p class="text-4xl text-center">Date from</p>
+                                    <input type="date" id="dateFrom" name="date" class="w-[100%] text-3xl text-gray-500 text-center">
+                                    <p class="text-4xl  text-center">Date to</p>
+                                    <input type="date" id="dateTo" name="date" class="w-[100%] text-3xl text-gray-500 text-center">
+                                </div>
+                            </div>
+                            <ul onclick="toggleInfo('DOWNLOAD')" class='cursor-pointer sm:text-2xl p-2 w-[100%] bg-gray-200 text-3xl duration-150 text-center' type="text">
+                                <p>Download</p>
+                            </ul>        
+                        </div>
+                    </div>
+                    <p class="text-center font-semibold text-xl pt-10 pb-10">© <a class="text-blue-700" href="https://www.alexdalas.com/">Alex Dalas</a>, 2023 (MIT) - <a class="text-blue-700" href="https://github.com/AlexCYP/scanauth">Source code</a></p>
+                    
+                    <ul onclick="location.replace('kiosk.html')" class='sm:text-2xl p-3 w-[100%] bg-gray-200 text-3xl cursor-pointer duration-150 text-center' type="text" value="${item.name} ${item.surname}">
+                        <p>Go to Kiosk</p>
+                    </ul>       
+                </div> 
+            </div>
+        </div>
+        <div id="users" class="w-[50vw] h-[100vh] bg-white flex items-center text-5xl justify-center">
+            <div class="flex items-center justify-center drop-shadow-2xl p-5">
+                <div class="w-[450px] h-[600px] bg-white outline rounded-[50px] ">
+                    <p class="text-center font-semibold text-4xl pt-10">Edit users</p>
+                    <div id="userArea" class="h-[435px] overflow-y-scroll pl-10 p-4 pr-10 text-center">
+                    </div>
+                    <div class="flex items-center justify-center cursor-pointer" onclick='document.getElementById("users").classList.toggle("hidden"); document.getElementById("signUpArea").classList.toggle("hidden");  document.getElementById("name").value = "";  document.getElementById("surname").value = ""'>
+                        <p class="text-center font-semibold text-2xl p-6 w-[200px]]">Add user</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="signUpArea" class="w-[50vw] hidden h-[100vh] bg-white flex items-center text-5xl justify-center">
+            <div class="flex items-center justify-center drop-shadow-2xl p-5">
+                <div class="w-[450px] h-[600px] bg-white outline rounded-[50px] ">
+                    <p class="text-center font-semibold text-4xl pt-10">Add user</p>
+                    <div class="h-[350px] overflow-y-scroll pl-10 p-4 pr-10 text-center">
+                        <p class="text-center font-semibold text-4xl p-4">Name</p>
+                        <input type="text" id="name" class="w-[370px] text-center" placeholder="John"></input>
+                        <p class="text-center font-semibold text-4xl p-4">Surname</p>
+                        <input type="text" id="surname" class="w-[370px] text-center" placeholder="Doe"></input>
+                    </div>
+                    <div class="flex items-center justify-center">
+                        <p class="text-center font-semibold text-4xl p-6 hover:bg-gray-200 duration-150 cursor-pointer bg-white w-[200px] outline drop-shadow-2xl rounded-[50px]" onclick="signUp()">Add</p>
+                    </div>
+                    <div class="flex items-center justify-center cursor-pointer" onclick='document.getElementById("users").classList.toggle("hidden"); document.getElementById("signUpArea").classList.toggle("hidden");'>
+                        <p class="text-center font-semibold text-2xl p-6 w-[200px]]">Edit users</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="fixed bottom-0 left-0 right-0">
+        <p class="text-center">© AlexDalas.com, 2023</p>
+    </div>  
+</body>
+</html>
+<script>
+    
+    document.getElementById('dateFrom').valueAsDate = new Date(new Date().getFullYear(), new Date().getMonth() - 1, new Date().getDate() + 1);
+    document.getElementById('dateTo').valueAsDate = new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate() + 1);
+
+
+    function genURL(urlString){
+        return "https://"+window.location.hostname+"/api/"+urlString
+    }
+    function getSettings(){
+        fetch(genURL('getsettings'), {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                credentials: 'include'
+            })
+            .then((response) => response.json())
+            .then((data) => {
+                switch(data.code) {
+                    case 200:
+                        document.getElementById("regInfo").innerHTML = data.registrations;
+                        break;
+                    default:
+                        location.replace('auth.html?then=admin.html');
+                        break;
+                } 
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+    }
+    getSettings();
+    function toggleInfo(info){
+        //REG
+        if (info=="REG"){
+            fetch(genURL('editsetting'), {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ item: info }),
+                credentials: 'include'
+            })
+            .then((response) => response.json())
+            .then((data) => {
+                switch(data.code) {
+                    case 200:
+                        getSettings();
+                        break;
+                    default:
+                        break;
+                } 
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+        }else if (info=="DOWNLOAD"){
+            fetch(genURL('editsetting'), {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({item: info, from: document.getElementById("dateFrom").valueAsDate.toISOString().substring(0, 10), to: document.getElementById("dateTo").valueAsDate.toISOString().substring(0, 10)}),
+                credentials: 'include'
+            })
+            .then(response => response.blob())
+            .then(blob => {
+                const url = window.URL.createObjectURL(new Blob([blob]));
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'records.csv';
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+        }
+    }
+
+    function listUsers(){
+        fetch(genURL('users'), {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            credentials: 'include'
+        })
+        .then((response) => response.json())
+        .then((data) => {
+            switch(data.code) {
+                case 200:
+                    console.log(data)
+                    document.getElementById('userArea').innerHTML = "";
+                    var Users = data.users.sort((a, b) => {
+                        if (a.surname < b.surname) return -1;
+                        if (a.surname > b.surname) return 1;
+                        if (a.name < b.name) return -1;
+                        if (a.name > b.name) return 1;
+                        return 0;
+                    });
+                    for (let i = 0; i < Users.length; i++) {
+                        const item = Users[i];
+                        var signedIn = bg = "";
+                        var BID = item.id
+                        var oCC = `onclick='document.getElementById(${item.id}).classList.remove("hidden");'`;
+                        document.getElementById('userArea').innerHTML += `<div class="${signedIn}" data-uid="${item.id}"><input ${oCC} id="input-${item.id}" class='active sm:text-2xl p-2 text-3xl w-[370px] duration-150 cursor-pointer ${bg} outline drop-shadow-2xl' type="text" value="${item.name} ${item.surname}"><div id="${BID}" class="hidden flex"><div class="text-2xl outline drop-shadow-2xl cursor-pointer left-0 w-[100%] p-2" onClick="editUser(${BID}, 'input-'+${item.id})">Done</div><div onclick="deleteUser(${item.id}, '${item.name} ${item.surname}')" class="text-2xl outline w-[150px] drop-shadow-2xl cursor-pointer right-0 p-2">Delete</div></div></button></div>`;
+                    }
+                    break;
+                default:
+                    location.replace('auth.html?then=admin.html');
+            } 
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+        });
+    }
+    listUsers()
+
+    function deleteUser(id, name){
+        if (confirm(`Are you sure you want to delete ${name}?`) == true) {
+            if (confirm(`This cannot be undone, are you really sure?`) == true) {
+                fetch(genURL('deleteuser'), {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({id: id}),
+                    credentials: 'include'
+                })
+                .then((response) => response.json())
+                .then((data) => {
+                    switch(data.code) {
+                        case 200:
+                            listUsers();
+                            break;
+                        default:
+                            alert("Could not delete user.")
+                            break;
+                    } 
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                });
+            } 
+        }
+    }
+
+    function editUser(user, newName){
+        console.log(user);
+        fetch(genURL('updatename'), {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({id: user, name: document.getElementById(newName).value}),
+            credentials: 'include'
+        })
+        .then((response) => response.json())
+        .then((data) => {
+            switch(data.code) {
+                case 200:
+                    document.getElementById(user).classList.add("hidden");
+                    break;
+                case 501:
+                    alert("Name must have space!")
+                    break;
+                default:
+                    console.log("error")
+            } 
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+        });
+    }
+
+    function signUp(){
+        fetch(genURL('signup'), {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({name: document.getElementById("name").value, surname: document.getElementById("surname").value, bypass: true }),
+            credentials: 'include'
+        })
+        .then((response) => response.json())
+        .then((data) => {
+            //switch(data.code) {
+                document.getElementById("users").classList.toggle("hidden"); 
+                document.getElementById("signUpArea").classList.toggle("hidden");
+                listUsers();
+            //} 
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+        });
+    }
+</script>

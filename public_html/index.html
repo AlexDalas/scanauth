@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="styles.css" rel="stylesheet">
+    <script src=
+    "https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js">
+        </script>
+    <title>ScanAuth</title>
+</head>
+<body>
+    <div class="flex overflow-auto scrollbar-hide">
+        <div id="signInArea" class="w-[100vw] h-[98vh] bg-white flex items-center text-5xl justify-center">
+            <div class="flex items-center justify-center drop-shadow-2xl p-5">
+                <div class="max-w-[350px] max-h-[500px] bg-white outline rounded-[50px] ">
+                    <p class="text-center font-semibold text-4xl pt-10">Enter code</p>
+                    <div class="flex items-center justify-center overflow-y-scroll pl-10 p-4 pr-10 text-center">
+                        <input type="text" id="code" class="w-[270px] text-center" placeholder="Code"></input>
+                    </div>
+                    <div class="flex items-center justify-center p-2">
+                        <p class="text-center font-semibold text-4xl p-6 hover:bg-gray-200 duration-150 cursor-pointer w-[100%] bg-white outline drop-shadow-2xl rounded-[50px]" onclick="code()">Submit</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div> 
+    <div class="fixed bottom-0 left-0 right-0">
+        <p class="text-center">© AlexDalas.com, 2023</p>
+    </div>  
+</body>
+</html>
+<script>
+    function code(){
+        document.location = `${window.location.origin}/sign.html?code=${document.getElementById("code").value.replace("-", "")}`;
+    }
+</script>

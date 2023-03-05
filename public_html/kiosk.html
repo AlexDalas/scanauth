@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="styles.css" rel="stylesheet">
+    <script src=
+    "https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js">
+        </script>
+    <title>ScanAuth</title>
+</head>
+<body>
+    <div class="flex overflow-auto scrollbar-hide">
+        <div class="w-[50vw] h-[98vh] bg-white flex items-center text-5xl justify-center">
+            <div>
+                <div class="flex items-center justify-center drop-shadow-2xl p-5">
+                    <div class="flex items-center justify-center w-[20vw] h-[20vw] bg-white outline rounded-[50px] ">
+                        <div class="w-[300px] h-[300px]">
+                            <div id="qrcode"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center justify-center rounded-full drop-shadow-2xl p-5 bg-white outline">
+                    <p class="text-center font-semibold">Scan the QR code to sign in</p>
+                </div>
+                <div class="flex items-center text-2xl justify-center rounded-full drop-shadow-2xl p-2">
+                    <p class="text-center font-semibold">Or use the code <a id="code"></a> at <a id="url"></a></p>
+                </div>
+                <a href="auth.html?then=admin.html">
+                    <div class="flex items-center justify-center drop-shadow-2xl p-5">
+                        <p class="text-center bg-gray-200 hover:p-4 duration-150 cursor-pointer text-2xl font-semibold bg-white outline rounded-full p-3">Settings</p>
+                    </div>
+                </a>    
+            </div>
+        </div>
+        <div id="signInArea" class="w-[50vw] h-[100vh] bg-white flex items-center text-5xl justify-center">
+            <div class="flex items-center justify-center drop-shadow-2xl p-5">
+                <div class="w-[450px] h-[600px] bg-white outline rounded-[50px] ">
+                    <p class="text-center font-semibold text-4xl pt-10">Sign in without QR</p>
+                    <div id="listitem" class="h-[350px] overflow-y-scroll pl-10 p-4 pr-10 text-center">
+                    </div>
+                    <div class="flex items-center justify-center p-2">
+                        <p class="text-center font-semibold text-4xl p-6 hover:bg-gray-200 duration-150 cursor-pointer bg-white w-[200px] outline drop-shadow-2xl rounded-[50px]" onclick="signIn()">Sign in</p>
+                    </div>
+                    <div id="signupbutton" class="flex items-center justify-center cursor-pointer" onclick='document.getElementById("signInArea").classList.toggle("hidden"); document.getElementById("signUpArea").classList.toggle("hidden");  document.getElementById("name").value = "";  document.getElementById("surname").value = ""'>
+                        <p class="text-center font-semibold text-2xl p-3 w-[200px]]">Sign up</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="signUpArea" class="w-[50vw] hidden h-[100vh] bg-white flex items-center text-5xl justify-center">
+            <div class="flex items-center justify-center drop-shadow-2xl p-5">
+                <div class="w-[450px] h-[600px] bg-white outline rounded-[50px] ">
+                    <p class="text-center font-semibold text-4xl pt-10">Sign up</p>
+                    <div class="h-[350px] overflow-y-scroll pl-10 p-4 pr-10 text-center">
+                        <p class="text-center font-semibold text-4xl p-4">Name</p>
+                        <input type="text" id="name" class="w-[370px] text-center" placeholder="John"></input>
+                        <p class="text-center font-semibold text-4xl p-4">Surname</p>
+                        <input type="text" id="surname" class="w-[370px] text-center" placeholder="Doe"></input>
+                    </div>
+                    <div class="flex items-center justify-center">
+                        <p class="text-center font-semibold text-4xl p-6 hover:bg-gray-200 duration-150 cursor-pointer bg-white w-[200px] outline drop-shadow-2xl rounded-[50px]" onclick="signUp()">Sign up</p>
+                    </div>
+                    <div class="flex items-center justify-center cursor-pointer" onclick='document.getElementById("signInArea").classList.toggle("hidden"); document.getElementById("signUpArea").classList.toggle("hidden");'>
+                        <p class="text-center font-semibold text-2xl p-6 w-[200px]]">Sign in</p>
+                    </div>
+                </div>
+            </div>
+        </div> 
+    </div>   
+    <div class="fixed bottom-0 left-0 right-0">
+        <p class="text-center">© AlexDalas.com, 2023</p>
+    </div>  
+</body>
+</html>
+<script>
+    let params = (new URL(document.location)).searchParams;
+    let name = params.get("code");
+
+
+    function genCode(){
+        fetch(genURL('gencode'), {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            credentials: 'include'
+        })
+        .then((response) => response.json())
+        .then((data) => {
+            switch(data.code) {
+                case 200:
+                    var qrcode = new QRCode("qrcode",
+                    {text: `${window.location.origin}/sign.html?code=${data.URLcode}`,
+                    width: 300,
+                    height: 300});
+                    document.getElementById("code").innerHTML = data.URLcode.match(/.{1,4}/g).join('-');
+                    document.getElementById("url").innerHTML = window.location.host;
+                    break;
+                case 404:
+                    location.replace("auth.html")
+            } 
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+        });
+    }
+    genCode();
+
+    fetch(genURL('getsettings'), {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        credentials: 'include'
+    })
+    .then((response) => response.json())
+    .then((data) => {
+        switch(data.code) {
+            case 200:
+                document.getElementById("signupbutton").innerHTML = "";
+                break;
+        } 
+    })
+    .catch((error) => {
+        console.error('Error:', error);
+    });
+
+    function genURL(urlString){
+        return "https://"+window.location.hostname+"/api/"+urlString
+    }
+
+    function listUsers(){
+        fetch(genURL('users'), {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            credentials: 'include'
+        })
+        .then((response) => response.json())
+        .then((data) => {
+            switch(data.code) {
+                case 200:
+                    console.log(data)
+                    document.getElementById('listitem').innerHTML = "";
+                    var Users = data.users.sort((a, b) => {
+                        if (a.surname < b.surname) return -1;
+                        if (a.surname > b.surname) return 1;
+                        if (a.name < b.name) return -1;
+                        if (a.name > b.name) return 1;
+                        return 0;
+                    });
+                    for (let i = 0; i < Users.length; i++) {
+                        const item = Users[i];
+                        var signedIn = oCC = bg = "";
+                        if (data.disabled.includes(item.id.toString())){
+                            bg = "bg-gray-300";
+                            signedIn = "disabled";
+                        }else{
+                            oCC = `onclick='this.classList.toggle("bg-blue-200");'`;
+                        }
+                        document.getElementById('listitem').innerHTML += `<div class="${signedIn} p-2" data-uid="${item.id}"><button class='active sm:text-2xl text-3xl p-2 duration-150 cursor-pointer ${bg} outline drop-shadow-2xl rounded-[50px]' ${oCC}>${item.name} ${item.surname}</button><br></div>`;
+                    }
+                    break;
+            } 
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+        });
+    }
+
+    listUsers();
+
+    function signIn(){
+        const parent = document.querySelector('#listitem');
+        const divies = parent.querySelectorAll('div');
+        var signInUsers = {users: []};
+        divies.forEach(div => {
+            if(div.firstElementChild.classList.contains('bg-blue-200')){
+                signInUsers.users.push(div.dataset.uid);
+            }
+        });
+
+        fetch(genURL('signin'), {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(signInUsers),
+            credentials: 'include'
+        })
+        .then((response) => response.json())
+        .then((data) => {
+            switch(data.code) {
+                case 200:
+                    alert("Signed in!");
+                    listUsers();
+                    break;
+            } 
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+        });
+    }
+
+    function signUp(){
+        const parent = document.querySelector('#listitem');
+        const divies = parent.querySelectorAll('div');
+        var signInUsers = {users: []};
+        divies.forEach(div => {
+            if(div.firstElementChild.classList.contains('bg-blue-200')){
+                signInUsers.users.push(div.dataset.uid);
+            }
+        });
+
+        fetch(genURL('signup'), {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({name: document.getElementById("name").value, surname: document.getElementById("surname").value}),
+            credentials: 'include'
+        })
+        .then((response) => response.json())
+        .then((data) => {
+            //switch(data.code) {
+                document.getElementById("signInArea").classList.toggle("hidden"); 
+                document.getElementById("signUpArea").classList.toggle("hidden");
+                listUsers();
+            //} 
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+        });
+    }
+    setInterval(function(){
+        listUsers()
+    }, 30000)
+
+</script>

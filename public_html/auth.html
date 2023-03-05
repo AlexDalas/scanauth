@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="styles.css" rel="stylesheet">
+    <script src=
+    "https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js">
+        </script>
+    <title>ScanAuth</title>
+</head>
+<body>
+    <div class="flex overflow-auto scrollbar-hide">
+        <div id="signInArea" class="w-[100vw] h-[98vh] bg-white flex items-center text-5xl justify-center">
+            <div class="flex items-center justify-center drop-shadow-2xl p-5">
+                <div class="max-w-[450px] max-h-[600px] bg-white outline rounded-[50px] ">
+                    <p class="text-center font-semibold text-4xl pt-10">Admin login</p>
+                    <div class="flex items-center justify-center overflow-y-scroll pl-10 p-4 pr-10 text-center">
+                        <input type="password" autocomplete="off" id="pwd" class="w-[370px] text-center" placeholder="Password"></input>
+                    </div>
+                    <div class="flex items-center justify-center p-2">
+                        <p class="text-center font-semibold text-4xl p-6 hover:bg-gray-200 duration-150 cursor-pointer bg-white w-[200px] outline drop-shadow-2xl rounded-[50px]" onclick="signIn()">Sign in</p>
+                    </div>
+                    <div class="flex items-center justify-center p-2">
+                        <p class="text-center font-semibold text-2xl p-2 hover:bg-gray-200 duration-150 cursor-pointer bg-white w-[200px] outline drop-shadow-2xl rounded-[50px]" onclick="location.replace('kiosk.html')">Go back</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="fixed bottom-0 left-0 right-0 p-4 h-[2vh]">
+            <p class="text-center">© AlexDalas.com, 2023</p>
+        </div>  
+    </div>
+</body>
+</html>
+<script>
+    const urlParams = new URLSearchParams(window.location.search);
+    function genURL(urlString){
+        return "https://"+window.location.hostname+"/api/"+urlString
+    }
+    fetch(genURL('isAdmin'), {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({pwd: document.getElementById("pwd").value}),
+        credentials: 'include'
+    })
+    .then((response) => response.json())
+    .then((data) => {
+        switch(data.code) {
+            case 200:
+                if (urlParams.get('then') != "admin.html"){
+                    location.replace('admin.html');
+                    document.cookie="token="+data.tk+"; max-age: 2592000";
+                    break;
+                }
+        } 
+    })
+    .catch((error) => {
+        console.error('Error:', error);
+    });
+
+    function signIn(){
+        fetch(genURL('authpwd'), {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({pwd: document.getElementById("pwd").value}),
+            credentials: 'include'
+        })
+        .then((response) => response.json())
+        .then((data) => {
+            switch(data.code) {
+                case 200:
+                    if (urlParams.get('then')){
+                        location.replace(urlParams.get('then'))
+                    }
+                    else{
+                        location.replace('kiosk.html');
+                    }
+                    document.cookie="token="+data.tk+"; max-age: 2592000";
+                    break;
+                default:
+                    alert("Wrong password!");
+                    break;
+            } 
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+        });
+    }
+
+</script>

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="styles.css" rel="stylesheet">
+    <script src=
+    "https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js">
+        </script>
+    <title>ScanAuth</title>
+</head>
+<body>
+    <div class="flex overflow-auto scrollbar-hide">
+        <div id="signInArea" class="w-[100vw] h-[98vh] bg-white flex items-center justify-center">
+            <div class="flex items-center justify-center drop-shadow-2xl p-5">
+                <div class="w-[325px] sm:w-[450px] duration-150 max-h-[600px] bg-white outline rounded-[50px] ">
+                    <p class="text-center font-semibold text-4xl pt-10 pl-2 pr-2">Sign in</p>
+                    <div id="listitem" class="h-[350px] text-2xl overflow-y-scroll pl-10 p-4 pr-10 text-center">
+                    </div>
+                    <div id="btn" class="flex items-center justify-center p-2">
+                        <p id="signIn" class="text-center font-semibold text-4xl p-6 hover:bg-gray-200 duration-150 cursor-pointer bg-white w-[100%] outline drop-shadow-2xl rounded-[50px]" onclick="signIn()">Sign in</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div> 
+    <div class="fixed bottom-0 left-0 right-0">
+        <p class="text-center">© AlexDalas.com, 2023</p>
+    </div>  
+</body>
+</html>
+<script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get('code');
+    function genURL(urlString){
+        return "https://"+window.location.hostname+"/api/"+urlString
+    }
+
+    let params = (new URL(document.location)).searchParams;
+    if (params.has("code")){
+        let name = params.get("code");
+
+    }
+    else{
+        location.replace('index.html')
+    }
+
+    function listUsers(){
+        fetch(genURL('users'), {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({code: params.get("code")}),
+            credentials: 'include'
+        })
+        .then((response) => response.json())
+        .then((data) => {
+            switch(data.code) {
+                case 200:
+                    console.log(data)
+                    document.getElementById('listitem').innerHTML = "";
+                    var Users = data.users.sort((a, b) => {
+                        if (a.surname < b.surname) return -1;
+                        if (a.surname > b.surname) return 1;
+                        if (a.name < b.name) return -1;
+                        if (a.name > b.name) return 1;
+                        return 0;
+                    });
+                    for (let i = 0; i < Users.length; i++) {
+                        const item = Users[i];
+                        var signedIn = oCC = bg = "";
+                        if (data.disabled.includes(item.id.toString())){
+                            bg = "bg-gray-300";
+                            signedIn = "disabled";
+                        }else{
+                            oCC = `onclick='this.classList.toggle("bg-blue-200");'`;
+                        }
+                        document.getElementById('listitem').innerHTML += `<div class="${signedIn} p-2" data-uid="${item.id}"><button class='active sm:text-2xl text-xl p-2 duration-150 cursor-pointer ${bg} outline drop-shadow-2xl rounded-[50px]' ${oCC}>${item.name} ${item.surname}</button><br></div>`;
+                    }
+                    break;
+                case 400:
+                    document.getElementById('listitem').innerHTML = "<div class='flex justify-items items-center'><p class='text-center font-semibold text-red-600 w-[100%]'>Invalid code</p></div><br><p id='signIn' class='text-center font-semibold text-4xl p-6 hover:bg-gray-200 duration-150 cursor-pointer bg-white outline drop-shadow-2xl rounded-[50px]' onclick='document.location = `index.html`'>Go back</p>"
+                    document.getElementById('btn').innerHTML = ""
+                    break;
+            } 
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+        });
+    }
+
+    listUsers();
+
+    function signIn(){
+        const parent = document.querySelector('#listitem');
+        const divies = parent.querySelectorAll('div');
+        var signInUsers = {users: []};
+        divies.forEach(div => {
+            if(div.firstElementChild.classList.contains('bg-blue-200')){
+                signInUsers.users.push(div.dataset.uid);
+            }
+        });
+        if (signInUsers.users == []){ alert("Please select a user!")}
+        fetch(genURL('signin'), {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(signInUsers),
+            credentials: 'include'
+        })
+        .then((response) => response.json())
+        .then((data) => {
+            switch(data.code) {
+                case 200:
+                    document.getElementById("listitem").innerHTML = "<div class='flex justify-items items-center'><p class='text-center font-semibold text-green-600'>Signed in!</p></div>"
+                    document.getElementById('btn').innerHTML = ""
+                    break;
+            } 
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+        });
+    }
+
+</script>
