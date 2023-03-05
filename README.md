@@ -1,0 +1,2 @@
+# scanauth
+Kiosk location authenticator
